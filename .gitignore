@@ -1,5 +1,7 @@
 .env
 API-keys-hier-invullen.txt
+node_modules/
+package-lock.json
 _design/
 *.zip
 .venv/
