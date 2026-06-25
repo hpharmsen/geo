@@ -1,119 +1,114 @@
 /* ============================================================
-   THEME — het uiterlijk van de GEO-meter (kleuren + lettertype)
+   THEME — overgenomen van harmsen.nl
    ------------------------------------------------------------
-   Wil je je eigen huisstijl? Pas de kleuren onder "Brand colors"
-   en het lettertype onder "Type" aan — of laat Claude dit voor je
-   doen (zie de prompt in BRANDING.md). De rest van de app gebruikt
-   automatisch deze waarden.
+   Lettertypes: Ubuntu (body), Lobster Two (display).
+   Tekst #444, links #44C, accent rgb(166,177,53) (olijf).
 
-   Dit standaard-thema is het "Van SEO naar GEO"-design en mag je
-   één-op-één overnemen of als startpunt gebruiken.
+   De variabel-namen (--indigo-*, --pink-*) zijn behouden zodat
+   index.html + app.js niet hoeven te wijzigen; de waarden zijn
+   geremapt naar de harmsen.nl-palette.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Caveat:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&family=Lobster+Two:wght@700&display=swap');
 
 :root {
-  /* ---------- Brand colors (sampled from cover) ---------- */
-  --indigo-950: #0E0058;          /* darker shade for depth */
-  --indigo-900: #19008F;          /* PRIMARY brand background */
-  --indigo-800: #2A1AAE;
-  --indigo-700: #4030C8;
-  --indigo-500: #6F62E0;
-  --indigo-300: #B8B0F2;
-  --indigo-100: #E8E5FB;
+  /* ---------- harmsen.nl-palette ---------- */
+  --c-text:   #444;
+  --c-link:   #44C;
+  --c-accent: rgb(166, 177, 53);          /* primair accent (olijf) */
+  --c-accent-dark: rgb(132, 142, 38);
+  --c-accent-light: rgb(225, 230, 178);
+  --c-accent-tint: rgb(243, 246, 220);
 
-  --pink-700:  #B30D5A;
-  --pink-600:  #E71674;          /* "SEO" magenta — primary accent */
-  --pink-500:  #F03A8E;
-  --pink-300:  #F894C0;
-  --pink-100:  #FCE0EE;
+  /* ---------- "indigo" reeks = donker → licht grijs/zwart ---------- */
+  --indigo-950: #000;
+  --indigo-900: #000;                     /* primary headings/borders */
+  --indigo-800: #1A1A1A;
+  --indigo-700: #333;
+  --indigo-500: #6B6B6B;
+  --indigo-300: #C4C4C4;
+  --indigo-100: #ECECEC;
 
-  --yellow-500: #F5F44D;         /* sticker / arrow highlight */
-  --yellow-400: #FAFA82;
-  --yellow-200: #FEFCC8;
+  /* ---------- "pink" reeks = accent (olijf-tinten) ---------- */
+  --pink-700:  var(--c-accent-dark);
+  --pink-600:  var(--c-accent);           /* primair accent */
+  --pink-500:  var(--c-accent);
+  --pink-300:  var(--c-accent-light);
+  --pink-100:  var(--c-accent-tint);
+
+  /* ---------- yellow = blauwe linktone (voor strips/tags) ---------- */
+  --yellow-500: #44C;
+  --yellow-400: #6E7AE6;
+  --yellow-200: #E5E8FA;
 
   --white:     #FFFFFF;
-  --off-white: #F7F6FB;
-  --gray-100:  #ECEAF3;
-  --gray-300:  #C9C5D6;
-  --gray-500:  #7C7794;
-  --gray-700:  #423E59;
-  --gray-900:  #1A1830;
-  --black:     #0A0820;
+  --off-white: #FBFBF7;
+  --gray-100:  #ECEAE3;
+  --gray-300:  #C9C5BB;
+  --gray-500:  #7C7A70;
+  --gray-700:  #5A5852;
+  --gray-900:  var(--c-text);
+  --black:     #000;
 
-  /* ---------- Semantic surface tokens (light context) ---------- */
+  /* ---------- Semantic surface tokens ---------- */
   --bg:           var(--white);
   --bg-soft:      var(--off-white);
   --bg-inverse:   var(--indigo-900);
-  --fg:           var(--indigo-900);
+  --fg:           var(--c-text);
   --fg-soft:      var(--gray-700);
   --fg-muted:     var(--gray-500);
   --fg-inverse:   var(--white);
-  --accent:       var(--pink-600);
+  --accent:       var(--c-accent);
   --accent-fg:    var(--white);
   --highlight:    var(--yellow-500);
-  --highlight-fg: var(--indigo-900);
+  --highlight-fg: var(--white);
   --border:       var(--gray-100);
   --border-strong:var(--indigo-900);
 
   /* ---------- Type ---------- */
-  --font-display: 'Anton', 'Bebas Neue', 'Impact', sans-serif;
-  --font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-script:  'Caveat', 'Bradley Hand', cursive;          /* hand-drawn arrow / annotation feel */
+  --font-display: 'Lobster Two', 'Georgia', serif;
+  --font-body:    'Ubuntu', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-script:  'Lobster Two', cursive;
 
-  /* Type scale — display is HUGE, condensed, all caps. */
-  --fs-display-xl: clamp(64px, 12vw, 168px);
-  --fs-display-lg: clamp(56px, 9vw, 120px);
-  --fs-display-md: clamp(40px, 6vw, 80px);
-  --fs-h1: 56px;
-  --fs-h2: 40px;
-  --fs-h3: 28px;
-  --fs-h4: 22px;
-  --fs-lg: 20px;
-  --fs-md: 17px;
+  --fs-display-xl: clamp(56px, 10vw, 128px);
+  --fs-display-lg: clamp(48px, 8vw, 96px);
+  --fs-display-md: clamp(36px, 5.5vw, 64px);
+  --fs-h1: 48px;
+  --fs-h2: 34px;
+  --fs-h3: 26px;
+  --fs-h4: 20px;
+  --fs-lg: 19px;
+  --fs-md: 16px;
   --fs-sm: 14px;
   --fs-xs: 12px;
 
-  --lh-display: 0.88;
-  --lh-tight: 1.1;
+  --lh-display: 1.05;
+  --lh-tight: 1.2;
   --lh-body: 1.55;
 
-  --ls-display: -0.01em;
-  --ls-caps: 0.04em;
+  --ls-display: 0;
+  --ls-caps: 0.06em;
 
   /* ---------- Spacing (8pt grid) ---------- */
-  --s-1: 4px;
-  --s-2: 8px;
-  --s-3: 12px;
-  --s-4: 16px;
-  --s-5: 24px;
-  --s-6: 32px;
-  --s-7: 48px;
-  --s-8: 64px;
-  --s-9: 96px;
-  --s-10: 128px;
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+  --s-9: 96px; --s-10: 128px;
 
   /* ---------- Radii ---------- */
-  --r-sm: 6px;
-  --r-md: 12px;
-  --r-lg: 20px;
-  --r-xl: 28px;
-  --r-pill: 999px;
-  --r-circle: 50%;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-xl: 24px;
+  --r-pill: 999px; --r-circle: 50%;
 
-  /* ---------- Shadows / elevation ---------- */
-  --shadow-sm: 0 1px 2px rgba(14, 0, 88, 0.08);
-  --shadow-md: 0 6px 18px rgba(14, 0, 88, 0.12);
-  --shadow-lg: 0 18px 48px rgba(14, 0, 88, 0.22);
-  --shadow-pop: 6px 6px 0 var(--indigo-900);  /* hard offset, brutalist sticker feel */
-  --shadow-pop-pink: 6px 6px 0 var(--pink-600);
+  /* ---------- Shadows ---------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 12px 34px rgba(0, 0, 0, 0.16);
+  --shadow-pop: 4px 4px 0 var(--c-accent);
+  --shadow-pop-pink: 4px 4px 0 var(--c-accent);
 
   /* ---------- Motion ---------- */
   --ease-out: cubic-bezier(.22,.61,.36,1);
   --ease-spring: cubic-bezier(.5,1.6,.4,1);
-  --t-fast: 120ms;
-  --t-med:  220ms;
-  --t-slow: 420ms;
+  --t-fast: 120ms; --t-med: 220ms; --t-slow: 420ms;
 }
 
 /* ============================================================
@@ -126,7 +121,7 @@ body {
   font-family: var(--font-body);
   font-size: var(--fs-md);
   line-height: var(--lh-body);
-  color: var(--fg);
+  color: var(--c-text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -134,11 +129,11 @@ body {
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 400;            /* Anton ships only 400, weight comes from the typeface */
-  text-transform: uppercase;
+  font-weight: 700;
+  text-transform: none;
   letter-spacing: var(--ls-display);
   line-height: var(--lh-tight);
-  color: var(--fg);
+  color: var(--black);
   margin: 0 0 var(--s-4);
 }
 h1 { font-size: var(--fs-h1); line-height: var(--lh-display); }
@@ -148,12 +143,12 @@ h4 { font-size: var(--fs-h4); }
 
 p { margin: 0 0 var(--s-4); text-wrap: pretty; max-width: 62ch; }
 
-a { color: var(--pink-600); text-decoration: underline; text-underline-offset: 3px; }
-a:hover { color: var(--pink-700); }
+a { color: var(--c-link); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
 small { font-size: var(--fs-sm); color: var(--fg-muted); }
 
-::selection { background: var(--yellow-500); color: var(--indigo-900); }
+::selection { background: var(--c-accent); color: var(--white); }
 
 /* ---------- Utility / semantic classes ---------- */
 
@@ -163,19 +158,19 @@ small { font-size: var(--fs-sm); color: var(--fg-muted); }
   font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: var(--ls-caps);
-  color: var(--pink-600);
+  color: var(--c-accent);
 }
 
-.display-xl { font-family: var(--font-display); font-size: var(--fs-display-xl); line-height: var(--lh-display); text-transform: uppercase; letter-spacing: var(--ls-display); }
-.display-lg { font-family: var(--font-display); font-size: var(--fs-display-lg); line-height: var(--lh-display); text-transform: uppercase; letter-spacing: var(--ls-display); }
-.display-md { font-family: var(--font-display); font-size: var(--fs-display-md); line-height: var(--lh-display); text-transform: uppercase; letter-spacing: var(--ls-display); }
+.display-xl { font-family: var(--font-display); font-size: var(--fs-display-xl); line-height: var(--lh-display); }
+.display-lg { font-family: var(--font-display); font-size: var(--fs-display-lg); line-height: var(--lh-display); }
+.display-md { font-family: var(--font-display); font-size: var(--fs-display-md); line-height: var(--lh-display); }
 
-.script { font-family: var(--font-script); font-weight: 600; }
+.script { font-family: var(--font-script); font-weight: 700; font-style: italic; }
 
 .lede { font-size: var(--fs-lg); line-height: 1.45; color: var(--fg-soft); }
 .muted { color: var(--fg-muted); }
-.ink { color: var(--indigo-900); }
-.pink { color: var(--pink-600); }
-.yellow-bg { background: var(--yellow-500); color: var(--indigo-900); }
-.indigo-bg { background: var(--indigo-900); color: var(--white); }
+.ink { color: var(--black); }
+.pink { color: var(--c-accent); }
+.yellow-bg { background: var(--yellow-500); color: var(--white); }
+.indigo-bg { background: var(--black); color: var(--white); }
 .indigo-bg h1, .indigo-bg h2, .indigo-bg h3, .indigo-bg h4 { color: var(--white); }
