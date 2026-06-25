@@ -1,7 +1,9 @@
 # Architectuur (V1 — Django-API + GitHub Pages frontend)
 
-Status: V1 minimal — fase 1+2 (backend) afgerond, fase 3+6 (frontend + cleanup)
-nog te doen. Zie `docs/plans/2026-06-24-002-geo-django-static-v1-minimal-plan.md`.
+Status: V1 minimal — fase 1+2 (backend) en fase 3+4 (frontend-port + orkestratie)
+afgerond. Resterend: fase 5 (GH Pages + DNS + CORS) en fase 6 (cleanup van de
+oude FastAPI-bestanden in `~/proj/geo/`). Zie
+`docs/plans/2026-06-24-002-geo-django-static-v1-minimal-plan.md`.
 
 ## Twee repos, één tool
 
@@ -82,36 +84,70 @@ tests.py          19 tests, draaien zonder externe API-calls
   12 concurrent slots; `release` voegt `createcachetable` toe.
 - `pyproject.toml`: `django-cors-headers`, `httpx` toegevoegd via `uv add`.
 
-## Frontend: GitHub Pages site op `geo.harmsen.nl` (nog te bouwen — Fase 3+4)
+## Frontend: GitHub Pages site op `geo.harmsen.nl`
 
-`~/proj/geo/` wordt omgebouwd tot statische frontend:
+`~/proj/geo/` is een statische frontend. Voor Fase 4 wonen de bestanden nog
+in `static/`; Fase 6 verhuist alles naar repo-root (zodat de GH Pages-deploy
+één directory pakt). Alle imports zijn relatief, dus de verhuizing is
+puur een `git mv`.
 
 ```
-CNAME                     "geo.harmsen.nl"
-index.html                single-page widget + CSP-meta
-config.js                 BACKEND_URL = 'https://harmsen.nl/api/geo'
-brand.js                  teksten/merknaam
-theme.css                 CSS-vars (lettertypes + kleuren van harmsen.nl)
-analyze.js                port van Python analyze.py
-report.js                 port van Python report.py
-app.js                    glue: formulier → queue (6 parallel) → rapport
-tests/                    node --test, fetch-mock + parity-corpus
+static/
+  index.html        single-page widget + CSP-meta
+  config.js         BACKEND_URL (auto-detect localhost vs production)
+  brand.js          teksten/merknaam (gebruikersbewerkbaar)
+  theme.css         CSS-vars (kleuren + lettertype)
+  api.js            dunne wrapper rond /api/geo/{config,prompts,run}
+  queue.js          parallel-queue met retry/stop-condities (testbaar)
+  analyze.js        port van Python analyze.py
+  report.js         port van Python report.py
+  app.js            DOM glue: formulier → queue → render → rapport
+  favicon.png
+tests/
+  queue.test.js     9 tests (node --test, geen DOM-dep)
+  analyze.test.js   16 tests (parity met analyze.py)
+  report.test.js    14 tests (rapport-structuur)
+  parity/           live-corpus parity-check (read README)
 ```
 
-XSS-bescherming: LLM-output altijd via `textContent`; CSP-meta in `index.html`
-beperkt `connect-src` tot `'self' https://harmsen.nl`.
+### Flow van een meting (in de browser)
 
-### Retry-matrix (frontend orkestratie)
+1. `app.js` haalt `/api/geo/config` → welke providers staan aan.
+2. `POST /api/geo/prompts` → `{prompts, book_prompts}`.
+3. Bouwt takenlijst `modus × provider × prompt × run`.
+4. `runQueue` (concurrency 6) → per task `POST /api/geo/run`.
+5. Per resultaat: `analyzeAnswer(text, merknaam, concurrenten, url, sources)`
+   in JS; push naar `per_run`.
+6. Boek-fase (optioneel): aparte queue (concurrency 3), één run per
+   diepte-prompt via de sterkste beschikbare provider.
+7. Aggregeer (`rowsPerProviderModus`, `totalsPerModus`, etc.) → render +
+   `buildReport(result)` → `rapport.md` download.
 
-| Foutoorzaak | Detectie | Actie |
-|---|---|---|
-| Netwerk down | `fetch` throwt / `navigator.onLine` | Wacht op `online` |
-| Heroku H12 timeout | 503 / abort na 30s | 1× retry na 3s, daarna failed |
-| Provider-fout in body | 200 + `error`-veld | Geen retry; mark failed |
-| Daily kill-switch | 503 + 'Dagbudget…' | Stop meting, modal |
-| IP-rate-limit | 429 | Modal; queue stopt |
-| 5xx overig | 500/502 | 1× retry na 3s |
-| 4xx overig | 400/403/404 | Geen retry |
+### Beveiliging in de browser
+
+- **CSP-meta**: `default-src 'self'`, `connect-src 'self' https://harmsen.nl
+  http://localhost:8000`, `script-src 'self'`, fonts alleen vanuit
+  fonts.gstatic.com.
+- **Geen innerHTML voor LLM-tekst**: alle AI-antwoorden gaan via
+  `textContent` + DOM-constructie (`highlightInto`). Boek-analyses
+  passeren een minimale, in-browser markdown-renderer die eerst alles
+  escapet.
+- **Geen externe scripts** (geen CDN-marked, geen analytics).
+
+### Retry-matrix (queue.js + api.js)
+
+`classifyResponse(status, body)` in `queue.js` mapt naar één van vier
+foutsoorten; `runQueue` doet de retry-beslissing:
+
+| Foutoorzaak | Detectie | `kind` | Actie |
+|---|---|---|---|
+| Netwerk down | `fetch` throwt + offline | (gate) | Wacht op `online`-event |
+| Timeout 30s | `AbortError` | `transient` | 1× retry na 3s, daarna failed |
+| Provider-fout in body | 200 + `error`-veld | `fail` | Geen retry; mark failed |
+| Daily kill-switch | 503 + 'Dagbudget…' | `budget` | Stop hele queue, modal |
+| IP-rate-limit | 429 | `rate_limited` | Stop hele queue, modal |
+| 5xx (overig) | 500/502/503-overig/504 | `transient` | 1× retry na 3s |
+| 4xx (overig) | 400/403/404 | `fail` | Geen retry |
 
 ## Externe afhankelijkheden
 
@@ -134,15 +170,31 @@ GEO_CORS_ORIGINS=https://geo.harmsen.nl
 
 ## Tests
 
+**Backend** (in `~/Sites/harmsen.nl`):
 ```
-cd ~/Sites/harmsen.nl    # of de feat/geo-api worktree
 uv run python manage.py test apps.geo --settings=website.test_settings
 ```
-
-19 tests dekken: demo-fallback, valid-call shape, ongeldig provider, lege
-prompt, oversized body, max_tokens-cap, dagbudget-503, IP-rate-limit-429,
+19 tests: demo-fallback, valid-call shape, ongeldig provider, lege prompt,
+oversized body, max_tokens-cap, dagbudget-503, IP-rate-limit-429,
 kosten-counter (succes + timeout), input-sanitization, config-no-budget-leak,
 promptset-shape, book_prompts dvv-skip/met-pagina, `_redact` van extra patronen.
+
+**Frontend** (in `~/proj/geo`):
+```
+node --test tests/*.test.js
+```
+39 tests:
+- `queue.test.js` (9): parallel-volgorde, retry op 504, max 1 retry,
+  4xx-no-retry, 429-stop, daily-budget-stop, partial-failure, offline-pauze,
+  `classifyResponse`-mapping.
+- `analyze.test.js` (16): mention/citation/positie, hele-woord matching,
+  aggregatie, drilldown.
+- `report.test.js` (14): markdown-structuur, demo-banner, modus-tabs,
+  boek-blok, aanbevelingen.
+
+Daarnaast `tests/parity/`: live-corpus check die 10 echte LLM-antwoorden door
+Python én JS heen draait en byte-equality verifieert. Apart aan te roepen,
+niet onderdeel van `node --test` (vereist `harmsen.nl`-backend + ~$0.015).
 
 ## Beperkingen V1
 
