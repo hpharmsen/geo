@@ -1,0 +1,10 @@
+.env
+API-keys-hier-invullen.txt
+_design/
+*.zip
+.venv/
+__pycache__/
+*.pyc
+data/
+logs/
+.DS_Store
