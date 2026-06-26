@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildReport, aanbevelingen, _internal } from '../static/report.js';
+import { buildReport, aanbevelingen, _internal } from '../report.js';
 
 const { _pct, _providerLabel, _boldMerk } = _internal;
 

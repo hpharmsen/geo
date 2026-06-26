@@ -1,6 +1,6 @@
 // Parity-test stap 2: lees tests/parity/raw.json (gemaakt door run.py),
-// run dezelfde pipeline door static/analyze.js + static/report.js, en
-// schrijf tests/parity/js_report.md. Vergelijk daarna met python_report.md.
+// run dezelfde pipeline door analyze.js + report.js (frontend in repo-root),
+// en schrijf tests/parity/js_report.md. Vergelijk daarna met python_report.md.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -11,8 +11,8 @@ import {
   totalsPerModus,
   competitorSharesPerModus,
   answersDrilldown,
-} from '../../static/analyze.js';
-import { buildReport } from '../../static/report.js';
+} from '../../analyze.js';
+import { buildReport } from '../../report.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const raw = JSON.parse(readFileSync(join(HERE, 'raw.json'), 'utf-8'));

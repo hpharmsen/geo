@@ -6,7 +6,7 @@ het markdown-rapport via geo/analyze.py + geo/report.py, en schrijf:
                         zodat run.mjs identiek dezelfde state opbouwt.
   - python_report.md  : output van geo/report.py op de analyzed result.
 
-Daarna runt run.mjs hetzelfde door static/analyze.js + static/report.js
+Daarna runt run.mjs hetzelfde door analyze.js + report.js (repo-root)
 en levert js_report.md op. Diff moet leeg zijn.
 
 Gebruik:

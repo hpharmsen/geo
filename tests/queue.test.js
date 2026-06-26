@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { runQueue, CallError, classifyResponse } from '../static/queue.js';
+import { runQueue, CallError, classifyResponse } from '../queue.js';
 
 // Hulpje: maak een mock runCall die een script afspeelt (één entry per call).
 // Elke entry is een object met {ok, data?, kind?, status?, delay?}.
