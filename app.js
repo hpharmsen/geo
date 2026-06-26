@@ -200,6 +200,7 @@ async function runMeting(config) {
   const queueRes = await runQueue({
     tasks,
     concurrency: window.GEO_CONFIG.CONCURRENCY,
+    concurrencyPerProvider: window.GEO_CONFIG.CONCURRENCY_PER_PROVIDER || 2,
     runCall,
     retryDelayMs: window.GEO_CONFIG.RETRY_DELAY_MS,
     awaitOnline: onlineGate,

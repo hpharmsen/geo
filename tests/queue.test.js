@@ -41,6 +41,31 @@ test('basis_volgorde: 10 calls, 6 parallel, allen slagen', async () => {
   assert.ok(maxConcurrent >= 2, 'verwacht echte parallel-uitvoering');
 });
 
+test('per-provider cap: max 2 anthropic én 2 openai tegelijk', async () => {
+  // 10 tasks alternerend anthropic/openai. Globale cap=6, per-provider=2.
+  // Verifieer dat geen enkele provider meer dan 2 gelijktijdige calls heeft.
+  const tasks = Array.from({ length: 10 }, (_, i) => ({
+    id: i, provider: i % 2 === 0 ? 'anthropic' : 'openai',
+  }));
+  const active = { anthropic: 0, openai: 0 };
+  const maxActive = { anthropic: 0, openai: 0 };
+  const runCall = async (task) => {
+    active[task.provider]++;
+    maxActive[task.provider] = Math.max(maxActive[task.provider], active[task.provider]);
+    await new Promise(r => setTimeout(r, 10));
+    active[task.provider]--;
+    return { provider: task.provider };
+  };
+  const res = await runQueue({
+    tasks, concurrency: 6, concurrencyPerProvider: 2, runCall, retryDelayMs: 0,
+  });
+  assert.equal(res.ok, 10);
+  assert.equal(res.fail, 0);
+  assert.ok(maxActive.anthropic <= 2, `max anthropic was ${maxActive.anthropic}`);
+  assert.ok(maxActive.openai <= 2, `max openai was ${maxActive.openai}`);
+  assert.ok(maxActive.anthropic >= 2, 'anthropic moet wel cap bereiken (anders test triviaal)');
+});
+
 // --- retry-gedrag -----------------------------------------------------------
 
 test('retry_op_504: één 504 dan 200 -> 1 retry, succesvol', async () => {

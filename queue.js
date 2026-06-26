@@ -42,6 +42,7 @@ export function classifyResponse(status, body) {
 export async function runQueue({
   tasks,
   concurrency = 6,
+  concurrencyPerProvider = Infinity,
   runCall,
   retryDelayMs = 3000,
   awaitOnline,
@@ -51,12 +52,43 @@ export async function runQueue({
 }) {
   const total = tasks.length;
   const results = new Array(total);
+  const inProgress = new Array(total).fill(false);
+  const inFlight = {};
   let done = 0, ok = 0, fail = 0;
   let stopped = false, stopReason = null;
-  let cursor = 0;
+
+  // Notify-pattern: workers wachten op `notifyPromise` als geen task beschikbaar
+  // is (provider gecapped) en alle andere workers nog bezig. Bij elke release
+  // (= slot vrij) wordt het notify gefired zodat wachtenden opnieuw proberen.
+  let notifyResolve;
+  let notifyPromise = new Promise(r => { notifyResolve = r; });
+  const notify = () => {
+    const r = notifyResolve;
+    notifyPromise = new Promise(res => { notifyResolve = res; });
+    r();
+  };
 
   const tick = () => {
     onProgress && onProgress({ done, ok, fail, total, stopped, stopReason });
+  };
+
+  // Eerste vrije task waar provider nog slot heeft. -1 als geen pakbaar.
+  const findAvailable = () => {
+    for (let i = 0; i < total; i++) {
+      if (inProgress[i] || results[i]) continue;
+      const p = tasks[i].provider;
+      if ((inFlight[p] || 0) >= concurrencyPerProvider) continue;
+      return i;
+    }
+    return -1;
+  };
+
+  // Is er nog wat te doen (lopend of niet)?
+  const hasRemaining = () => {
+    for (let i = 0; i < total; i++) {
+      if (!results[i]) return true;
+    }
+    return false;
   };
 
   async function attempt(task, attemptNo) {
@@ -85,10 +117,17 @@ export async function runQueue({
   async function worker() {
     while (true) {
       if (stopped) return;
-      const i = cursor++;
-      if (i >= total) return;
+      const i = findAvailable();
+      if (i === -1) {
+        if (!hasRemaining()) return;
+        await notifyPromise;
+        continue;
+      }
+      inProgress[i] = true;
       const task = tasks[i];
+      inFlight[task.provider] = (inFlight[task.provider] || 0) + 1;
       const outcome = await attempt(task, 1);
+      inFlight[task.provider]--;
       results[i] = {
         task,
         ok: outcome.ok,
@@ -100,6 +139,7 @@ export async function runQueue({
       if (outcome.ok) ok++; else fail++;
       onResult && onResult(i, results[i]);
       tick();
+      notify();
     }
   }
 

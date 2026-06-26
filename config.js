@@ -10,6 +10,7 @@ const DEFAULT = location.hostname === 'localhost' || location.hostname === '127.
 window.GEO_CONFIG = {
   BACKEND_URL: (PARAM || DEFAULT).replace(/\/+$/, ''),
   CONCURRENCY: 6,
+  CONCURRENCY_PER_PROVIDER: 2,  // anti-Anthropic-429: max 2 calls tegelijk naar dezelfde provider
   RUN_TIMEOUT_MS: 30000,    // Heroku H12 grens
   RETRY_DELAY_MS: 3000,
 };
