@@ -15,16 +15,17 @@
                form-action 'none'" />
 <title>GEO-meter</title>
 <meta name="description" content="Meet hoe vaak en waar AI-modellen (ChatGPT, Gemini, Perplexity, Claude) jouw merk noemen." />
-<link rel="icon" href="./favicon.png" type="image/png" />
-<link rel="stylesheet" href="./theme.css" />
-<script src="./brand.js"></script>
-<script src="./config.js"></script>
+<link rel="icon" href="./assets/favicon.png" type="image/png" />
+<link rel="stylesheet" href="./assets/theme.css" />
+<script src="./src/brand.js"></script>
+<script src="./src/config.js"></script>
 <style>
   body { background: var(--bg-soft); }
   .wrap { max-width: 880px; margin: 0 auto; padding: 0 var(--s-5) var(--s-10); }
 
   .hero { background: var(--indigo-900); color: var(--white); position: relative; overflow: hidden; }
   .hero-inner { max-width: 880px; margin: 0 auto; padding: var(--s-8) var(--s-5) var(--s-7); position: relative; }
+  .hero-logo { position: absolute; top: 68px; right: var(--s-5); height: 75px; width: auto; }
   .hero .eyebrow { color: var(--yellow-500); margin-bottom: var(--s-3); }
   .hero h1 { color: var(--white); font-size: var(--fs-display-md); line-height: var(--lh-display); margin: 0 0 var(--s-4); }
   .hero h1 .pink { color: var(--pink-500); }
@@ -138,11 +139,15 @@
   #modal .box { background: #fff; border-radius: var(--r-lg); padding: var(--s-6); max-width: 480px; box-shadow: var(--shadow-lg); }
   #modal .modal-title { font-family: var(--font-display); font-size: 28px; text-transform: uppercase; margin: 0 0 var(--s-3); color: var(--indigo-900); }
   #modal .modal-body { color: var(--gray-700); margin-bottom: var(--s-5); white-space: pre-wrap; }
+
+  .site-footer { max-width: 880px; margin: 0 auto; padding: var(--s-6) var(--s-5) var(--s-8); font-size: var(--fs-xs); font-style: italic; color: var(--gray-500); text-align: center; }
+  .site-footer a { color: var(--gray-500); }
 </style>
 </head>
 <body>
 <header class="hero">
   <div class="hero-inner">
+    <img class="hero-logo" src="./assets/logo_white.png" alt="" />
     <div class="eyebrow" id="brand-eyebrow"></div>
     <h1 id="brand-titel"></h1>
     <p class="lede" id="brand-tagline"></p>
@@ -223,6 +228,10 @@
   <div class="hidden" id="result"></div>
 </div>
 
+<footer class="site-footer">
+  De GEO-meter is een Python port van de originele GEO meter uit de van SEO naar GEO workshop van Martin van Kranenburg. Voor meer info zie: <a href="https://vanseonaargeo.nl/geo-workshop" target="_blank" rel="noopener noreferrer">vanseonaargeo.nl/geo-workshop</a>.
+</footer>
+
 <div id="modal" class="hidden">
   <div class="box">
     <h3 class="modal-title"></h3>
@@ -231,6 +240,6 @@
   </div>
 </div>
 
-<script type="module" src="./app.js"></script>
+<script type="module" src="./src/app.js"></script>
 </body>
 </html>

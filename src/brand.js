@@ -9,14 +9,14 @@
 
 window.BRAND = {
   // Het kleine label bovenaan (bv. je bureaunaam). Leeg laten = verbergen.
-  eyebrow: "",
+  eyebrow: "Harmsen AI Consultancy B.V.",
 
   // De grote titel. Het accent-deel krijgt je accentkleur.
   titel: "GEO-",
   titelAccent: "meter",
 
   // De introzin onder de titel.
-  tagline: "Meet hoe vindbaar een merk nu is in AI-modellen. We stellen schone vragen via de API en kijken hoe vaak en waar je merk genoemd wordt. We stellen elke vraag meerdere keren, voor een zo eerlijk mogelijk resultaat.",
+  tagline: "Meet hoe vindbaar een merk is in AI-modellen. We stellen elke vraag meerdere keren aan de AI's, voor een zo eerlijk mogelijk resultaat.",
 
   // Wat in de browser-tab staat.
   paginaTitel: "GEO-meter",

@@ -7,7 +7,7 @@ import {
   answersDrilldown,
   competitorSharesPerModus,
   _internal,
-} from '../analyze.js';
+} from '../src/analyze.js';
 
 const { _norm, _domain, _namePresent, _pyRound } = _internal;
 
